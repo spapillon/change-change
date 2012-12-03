@@ -34,6 +34,23 @@ change_N(C, S, ACC, F) :-
 change_N(C, S):-
 	change_N(C, S, [], C).
 
+% Heuristic 1 :
+misplaced_peices([A,B,C,D,_,_,_,_,E,F,G,H], N) :-
+	difference(A, E, N1),
+	difference(B, F, N1, N2),
+	difference(C, G, N2, N3),
+	difference(D, H, N3, N).
+
+difference(A, B, C, C1) :-
+	(A = B, C1 is C);
+	C1 is C+1.
+difference(A, B, C) :-
+	(A = B, C is 0);
+	C is 1.
+
+change_M(D, S) :-
+	
+
 % Test cases : 
 change_N([1,10,0,10,25,1,5,1,1,10,5,10],S) ,  afficher([1,10,0,10,25,1,5,1,1,10,5,10], S, m).
 change_N([0,1,5,10,10,1,10,5,1,10,1,25], S).
