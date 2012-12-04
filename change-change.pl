@@ -1,4 +1,4 @@
-% Utils :
+% Validation:
 valid_state([A,B,C,D,_,_,_,_,E,F,G,H]) :-
 	A = E,
 	B = F,
@@ -11,66 +11,7 @@ valid_move(N,N1) :-
 	(N1 is N+1, \+ N = 4, \+ N = 8, N < 12);
 	(N1 is N-1, \+ N = 5, \+ N = 9, N > 1).
 
-reverse(L, R) :-
-	reverse(L, [], R).
-
-reverse([], R, R).
-reverse([H|T], S, Rd) :-
-	reverse(T, [H|S], R).
-% Iterate through list where if the current head is < E.
-insert([N,C], [[H,CC]|TAIL], [[H,CC]|NEWTAIL]):-
-        C > CC,
-        insert([N,C], TAIL, NEWTAIL).
-% Position is adequate, insert element
-insert([N,C], [[H,CC]|TAIL], [[N,C],[H,CC]|TAIL]):-
-        C =< CC.
-% Basal case where an element is inserted in an empty list
-insert([N,C], [], [[N,C]]).
-
-% Uninformed search :
-change_N(STATE, SOLUTION, ACCUMULATOR, FRINGE) :-
-	valid_state(STATE),
-	reverse(ACCUMULATOR, SOLUTION).
-
-change_N(STATE, SOLUTION, ACCUMULATOR, FRINGE) :-
-        place_vide(STATE, N),
-        valid_move(N, N1),
-	echanger(STATE, N, N1, NEWSTATE),
-	\+member(NEWSTATE, FRINGE),
-        change_N(NEWSTATE, SOLUTION, [N1|ACCUMULATOR], [STATE|FRINGE]).
-
-change_N(STATE, SOLUTION):-
-	change_N(STATE, SOLUTION, [], STATE).
-
-% Heuristic 1 :
-misplaced_peices([A,B,C,D,_,_,_,_,E,F,G,H], N) :-
-	difference(A, E, N1),
-	difference(B, F, N1, N2),
-	difference(C, G, N2, N3),
-	difference(D, H, N3, N), !.
-
-difference(A, B, C, C1) :-
-	(A = B, C1 is C);
-	C1 is C+1.
-difference(A, B, C) :-
-	(A = B, C is 0);
-	C is 1.
-
-change_M(STATE, SOLUTION, ACCUMULATOR, FRINGE) :-
-	valid_state(STATE),
-	reverse(ACCUMULATOR, SOLUTION).
-	
-change_M(STATE, SOLUTION, ACCUMULATOR, FRINGE) :-
-	place_vide(STATE, N),
-	valid_moves(N, LIST),
-	evaluate_moves(LIST, STATE, MOVES),
-	insert(MOVES, FRINGE, [HEAD|NEWFRINGE]),
-	echanger(STATE, N, V1, C1).
-
-change_M(STATE, SOLUTION) :-
-	change_M(STATE, SOLUTION, ACCUMULATOR, []).
-	
-valid_moves(N, L):-
+valid_moves(N, L) :-
 	test1(N, L1),
 	test2(N, L1, L2),
 	test3(N, L2, L3),
@@ -100,14 +41,100 @@ test4(N, L, L1) :-
 	N1 is N-1,
 	append([N1], L, L1));
         append([], L, L1).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Ordering:
+
+insertion_sort(IN, OUT):-
+        insertion_sort(IN, [], OUT).
+
+insertion_sort([], ACC, ACC).
+
+insertion_sort([HEAD|TAIL], ACC, OUT):-
+        insert(HEAD, ACC, NEWACC),
+        insertion_sort(TAIL, NEWACC, OUT).
+
+insert([STATE, EMPTY, MOVE, VALUE],
+	[[HSTATE, HEMPTY, HMOVE, HVALUE]|TAIL],
+	[[HSTATE, HEMPTY, HMOVE, HVALUE]|NEWTAIL]):-
+        VALUE > HVALUE,
+        insert([STATE, EMPTY, MOVE, VALUE], TAIL, NEWTAIL).
+
+insert([STATE, EMPTY, MOVE, VALUE],
+	[[HSTATE, HEMPTY, HMOVE, HVALUE]|TAIL],
+	[[STATE, EMPTY, MOVE, VALUE],[HSTATE, HEMPTY, HMOVE, HVALUE]|TAIL]):-
+        VALUE =< HVALUE.
+
+insert([STATE, EMPTY, MOVE, VALUE], [], [[STATE, EMPTY, MOVE, VALUE]]).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Uninformed search :
+
+change_N(STATE, SOLUTION, ACCUMULATOR, _) :-
+	valid_state(STATE),
+	reverse(ACCUMULATOR, SOLUTION).
+
+change_N(STATE, SOLUTION, ACCUMULATOR, VISITED) :-
+        place_vide(STATE, N),
+        valid_move(N, N1),
+	echanger(STATE, N, N1, NEWSTATE),
+	\+member(NEWSTATE, VISITED),
+        change_N(NEWSTATE, SOLUTION, [N1|ACCUMULATOR], [STATE|VISITED]).
+
+change_N(STATE, SOLUTION):-
+	change_N(STATE, SOLUTION, [], STATE).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Heuristic 1 :
+change_M(STATE, SOLUTION, ACCUMULATOR, _, _, _) :-
+	valid_state(STATE),
+	reverse(ACCUMULATOR, SOLUTION).
+	
+change_M(STATE, SOLUTION, ACCUMULATOR, FRINGE, VISITED, DEPTH) :-
+	place_vide(STATE, N),
+	valid_moves(N, LIST),
+	evaluate_moves(LIST, N, STATE, [], MOVES, DEPTH),
+	insertion_sort(MOVES, FRINGE, SORTEDFRINGE),
+	next_available_move(SORTEDFRINGE, VISITED, [NEWSTATE, EMPTY, NEXTMOVE], NEWFRINGE),
+	write(' VISITED: '), write(VISITED), nl,
+	write(' FRINGE: '), write(SORTEDFRINGE), nl,
+	write(' NEXT: '), write(NEWSTATE) , write(' '), write(NEXTMOVE), nl,
+	write('\t'), write(NEWFRINGE), nl, nl,
+	echanger(NEWSTATE, EMPTY, NEXTMOVE, NEXTSTATE),
+	change_M(NEXTSTATE, SOLUTION, [NEXTMOVE|ACCUMULATOR], NEWFRINGE, [NEXTSTATE|VISITED], DEPTH+1).
 	
 
+change_M(STATE, SOLUTION) :-
+	change_M(STATE, SOLUTION, [], [], STATE, 0).
+
+next_available_move([[STATE, EMPTY, MOVE, _]|FRINGE], VISITED, NEXTMOVE, NEWFRINGE) :-
+	echanger(STATE, EMPTY, MOVE, NEWSTATE),
+	member(NEWSTATE, VISITED),
+	next_available_move(FRINGE, VISITED, NEXTMOVE, NEWFRINGE).
+
+next_available_move([[STATE, EMPTY, MOVE, _]|FRINGE], _, [STATE, EMPTY, MOVE], FRINGE).
+
+
+evaluate_moves([], _, _, ACCUMULATOR, ACCUMULATOR, _).
+
+evaluate_moves([HEAD|LIST], EMPTY, STATE, ACCUMULATOR, MOVES, DEPTH) :-
+	echanger(STATE, EMPTY, HEAD, NEWSTATE),
+	misplaced_peices(NEWSTATE, VALUE),
+	VALUE1 is VALUE+DEPTH,
+	evaluate_moves(LIST, EMPTY, STATE, [[STATE, EMPTY, HEAD, VALUE1]|ACCUMULATOR], MOVES, DEPTH).
+
+misplaced_peices([A,B,C,D,_,_,_,_,E,F,G,H], N) :-
+	difference(A, E, N1),
+	difference(B, F, N1, N2),
+	difference(C, G, N2, N3),
+	difference(D, H, N3, N), !.
+
+difference(A, B, C, C1) :-
+	(A = B, C1 is C);
+	C1 is C+1.
+difference(A, B, C) :-
+	(A = B, C is 0);
+	C is 1.
+
 	
 
-% Test cases : 
-change_N([1,10,0,10,25,1,5,1,1,10,5,10],S) ,  afficher([1,10,0,10,25,1,5,1,1,10,5,10], S, m).
-change_N([0,1,5,10,10,1,10,5,1,10,1,25], S).
-change_N([1,1,5,1,10,10,1,10,5,10,25,0], S) , afficher([1,1,5,1,10,10,1,10,5,10,25,0], S, m).
-
-change_M(D,S).
-change_H(D,S). 
