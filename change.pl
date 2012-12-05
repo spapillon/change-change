@@ -11,51 +11,6 @@ valid_move(N,N1) :-
 	(N1 is N-4, N > 4);
 	(N1 is N+1, \+ N = 4, \+ N = 8, N < 12);
 	(N1 is N-1, \+ N = 5, \+ N = 9, N > 1).
-
-valid_moves(N, L) :-
-	test1(N, L1),
-	test2(N, L1, L2),
-	test3(N, L2, L3),
-	test4(N, L3, L), !.
-
-test1(N, L) :-
-	(N < 9,
-	N1 is N+4,
-	append([N1], [], L));
-	append([], [], L).
-test2(N, L, L1) :-
-	(N > 4, 
-	N1 is N-4,
-	append([N1], L, L1));
-	append([], L, L1).
-test3(N, L, L1) :-
-	(\+ N = 4,
-	\+ N = 8,
-	N < 12,
-	N1 is N+1,
-	append([N1], L, L1));
-	append([], L, L1).
-test4(N, L, L1) :-
-	(\+ N = 5,
-	\+ N = 9,
-	N > 1,
-	N1 is N-1,
-	append([N1], L, L1));
-        append([], L, L1).
-
-
-misplaced_peices([A,B,C,D,_,_,_,_,E,F,G,H], N) :-
-	difference(A, E, N1),
-	difference(B, F, N1, N2),
-	difference(C, G, N2, N3),
-	difference(D, H, N3, N), !.
-
-difference(A, B, C, C1) :-
-	(A = B, C1 is C);
-	C1 is C+1.
-difference(A, B, C) :-
-	(A = B, C is 0);
-	C is 1.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Uninformed search :
 
@@ -103,6 +58,13 @@ change_H(STATE, SOLUTION) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Example:
-example([25,10,1,10,1,5,5,10,1,10,0,1]).
-% Example query: example(POS), bestfirst(POS,SOL), get_changes(SOL, [],CHANGES), afficher(POS, CHANGES, m).
+example1([25,10,1,10,1,5,5,10,1,10,0,1]).
+example2([1,1,5,1,10,10,1,10,5,10,25,0]).
+example3([1,10,10,25,10,1,0,1,5,10,5,1]).
+example4([10,10,1,0,1,25,5,10,5,1,10,1]).
+example5([1,10,5,25,0,10,10,1,1,5,10,1]).
+example6([5,0,5,10,10,25,1,10,1,1,1,10]).
+example7([0,1,5,10,10,1,10,5,1,10,1,25]).
+
+% Example query: example(POS), change_N(POS,SOL), afficher(POS, SOL, m).
 
