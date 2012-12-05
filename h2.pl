@@ -1,4 +1,5 @@
-h2(STATE, N) :-
+% Heuristic 2 : Max of {manhattan distance betweem 0 and 25, 0 and furthest difference, raw number of differences}
+h(STATE, N) :-
 	place_25(STATE, P25),
 	place_vide(STATE, P0),
 	((is_on_symmetric_row(P25),
@@ -10,7 +11,8 @@ h2(STATE, N) :-
 	((is_on_symmetric_row(P0), 
 	D3 is D2);
 	D3 is D2 + 1),
-	max([D1,D3], N), !.
+	length(L, D4),
+	max([D1, D3, D4], N), !.
 
 difference_distance([], _, ACC, ACC).
 difference_distance([X|TAIL], EMPTY, ACC, OUT) :-
@@ -24,22 +26,8 @@ differences([A,B,C,D,_,_,_,_,E,F,G,H], L) :-
 	equals(C, G, 3, L2, L3),
 	equals(D, H, 4, L3, L).
 
-max([], 0).
-max([X], X).
-max([X|Xs], X):-
-	max(Xs, Y),	
-	X >=Y.
-max([X|Xs], N):-
-	max(Xs, N),
-	N > X.
-
-equals(X, X, POS, IN, IN) :- !.
-equals(X, Y, POS, IN, [POS|IN]).
-
-
-is_on_symmetric_row(N) :-
-	(N-1) // 4 =:= 0;
-	(N-1) // 4 =:= 2, !.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Distances
 
 manhattan_distance(A, B, D) :-
 	getX(A, Ax),
@@ -57,14 +45,32 @@ getX(A, X) :-
 	X is Axtemp), !.
 
 getY(A, Y) :-
-	Y is (A-1) // 4.
+	Y is (A-1) // 4. %/
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Utils
+
+max([], 0).
+max([X], X).
+max([X|Xs], X):-
+	max(Xs, Y),	
+	X >=Y.
+max([X|Xs], N):-
+	max(Xs, N),
+	N > X.
+
+equals(X, X, POS, IN, IN) :- !.
+equals(X, Y, POS, IN, [POS|IN]).
+
+is_on_symmetric_row(N) :-
+	(N-1) // 4 =:= 0;
+	(N-1) // 4 =:= 2, !.
 
 abs_diff(X, Y, D) :-
 	((X > Y,
 	D is X - Y);
 	D is Y - X), !.
 	
-
 place_25([25|_],1).
 place_25([A|B],N) :-
 	place_25(B,N1), N is N1+1.

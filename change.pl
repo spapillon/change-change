@@ -11,6 +11,7 @@ valid_move(N,N1) :-
 	(N1 is N-4, N > 4);
 	(N1 is N+1, \+ N = 4, \+ N = 8, N < 12);
 	(N1 is N-1, \+ N = 5, \+ N = 9, N > 1).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Uninformed search :
 
@@ -43,6 +44,7 @@ get_changes([HEAD|STATES],  ACC, CHANGES) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Heuristic 1:
+
 change_M(STATE, SOLUTION) :-
 	[h1],
 	bestfirst(STATE, STATES),
@@ -67,4 +69,5 @@ example6([5,0,5,10,10,25,1,10,1,1,1,10]).
 example7([0,1,5,10,10,1,10,5,1,10,1,25]).
 
 % Example query: example(POS), change_N(POS,SOL), afficher(POS, SOL, m).
+% example1(POS), h1(POS, N1), h2(POS,N2).
 
