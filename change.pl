@@ -88,21 +88,18 @@ get_changes([HEAD|STATES],  ACC, CHANGES) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Heuristic 1:
-
-h([A,B,C,D,_,_,_,_,E,F,G,H], N) :-
-	difference(A, E, N1),
-	difference(B, F, N1, N2),
-	difference(C, G, N2, N3),
-	difference(D, H, N3, N), !.
+change_M(STATE, SOLUTION) :-
+	[h1],
+	bestfirst(STATE, STATES),
+	get_changes(STATES, [], SOLUTION).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Heuristic 2:
 
-h([A,B,C,D,_,_,_,_,E,F,G,H], N) :-
-	difference(A, E, N1),
-	difference(B, F, N1, N2),
-	difference(C, G, N2, N3),
-	difference(D, H, N3, N), !.
+change_H(STATE, SOLUTION) :-
+	[h2],
+	bestfirst(STATE, STATES),
+	get_changes(STATES, [], SOLUTION).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Example:
