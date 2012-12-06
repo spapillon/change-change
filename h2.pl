@@ -1,6 +1,5 @@
 % Heuristic 2 : Max of {manhattan distance betweem 0 and 25, 0 and furthest difference, raw number of differences}
 h(STATE, N) :-
-	write('CALL'), nl,
 	place_vide(STATE, P0),
 	differences(STATE, L),
 	difference_distance(L, P0, [], DISTANCES),
