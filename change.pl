@@ -68,6 +68,6 @@ example5([1,10,5,25,0,10,10,1,1,5,10,1]).
 example6([5,0,5,10,10,25,1,10,1,1,1,10]).
 example7([0,1,5,10,10,1,10,5,1,10,1,25]).
 
-% Example query: example(POS), change_N(POS,SOL), afficher(POS, SOL, m).
+% Example query: example1(POS), change_N(POS,SOL), afficher(POS, SOL, m).
 % example1(POS), h1(POS, N1), h2(POS,N2).
 

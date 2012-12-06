@@ -1,22 +1,23 @@
 % Heuristic 2 : Max of {manhattan distance betweem 0 and 25, 0 and furthest difference, raw number of differences}
 h(STATE, N) :-
-	place_25(STATE, P25),
+	write('CALL'), nl,
 	place_vide(STATE, P0),
-	((is_on_symmetric_row(P25),
-	manhattan_distance(P25, P0, D1));
-	D1 is 0),
 	differences(STATE, L),
 	difference_distance(L, P0, [], DISTANCES),
-	max(DISTANCES, D2),
-	((is_on_symmetric_row(P0), 
-	D3 is D2);
-	D3 is D2 + 1),
-	length(L, D4),
-	max([D1, D3, D4], N), !.
+	max(DISTANCES, D1),
+	((is_on_symmetric_row(P0),
+	D2 is D1);
+	(D1 = 0,
+	D2 is 0);
+	D2 is D1 + 1),
+	length(L, D3),
+	max([D2, D3], N), !.
 
 difference_distance([], _, ACC, ACC).
 difference_distance([X|TAIL], EMPTY, ACC, OUT) :-
-	abs_diff(EMPTY mod 4, X, Dx),
+	getX(X, Xx),
+	getX(EMPTY, Ex),	
+	abs_diff(Ex, Xx, Dx),
 	difference_distance(TAIL, EMPTY, [Dx|ACC], OUT).
 	
 

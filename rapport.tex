@@ -1,0 +1,104 @@
+\documentclass[12pt]{article}
+\usepackage{enumerate}
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage[belowskip=0pt,aboveskip=10pt]{caption}
+
+\author{
+  Papillon-Cavanagh, Simon\\
+  PAPS27118805\\
+  \texttt{simon.papillon-cavanagh@umontreal.ca}
+}
+\title{IFT3335 - A12 - TP2}
+
+\begin{document}
+\maketitle
+
+
+\section{Problematic}
+Path finding and graph traversal are common problems in computer gaming and computer science in general.  A number of graph traversal methods are available to the community, each presenting their particular details.  Here we present three implementations of different search algorithms and discuss their implications in the case of the change-change game.  This game consist of a 4x3 grid with different numbers in it. The goal is the attain a state where the first and last row of the grid contain the same numbers.  Valid moves consist of a swap between the cell containing a 0 and an adjacent cell.  In this document we will discuss the impact of different graph traversal algorithms on a change-change game with grids containing three of each \{1,5,10\} and one 0.  Up to seven different starting grids are used to explicit the differences between the implementations.
+
+First, a trivial uninformed search is described.  Second, we implemented the A* search algorithm using an heuristic defined as the number of differences in a state. Third, we improved the algorithm by bettering the heuristic.  In order to do so, we implemeted a more adequate estimation of the minimal cost of a state by including the distance between furthest difference and the 0.  The impact of this change is discussed in Section 3.
+
+\section{Implementation}
+In this section, we describe the main predicates used for path finding.  The details of the implementation of each predicates can be found in the files mentionned at the end of this document.
+
+\subsection{General}
+\begin{enumerate}[-]
+\item
+\textit{valid\_move(N, N1)}: This predicate verifies the validity of a move and will hold true if the transition from N to N1 can be played. Most of the backtracking will occur here as N1 may unify with all valid moves.
+\item
+\textit{goal([A, B, C, D, \_, \_, \_, \_, E, F, G, H])}: This predicate is true when the current state is a goal state, meaning that the first and last rows are symmetric.
+\end{enumerate}
+
+\subsection{Uninformed Search}
+\begin{enumerate}[-]
+\item
+\textit{change\_N(STATE, SOLUTION, ACCUMULATOR, VISITED)}:
+This is the main predicate of the uninformed search algorithm implementation.  The search will first infer the position of the 0 using the provided \textit{place\_vide/2} predicate then find a valid move (\textit{valid\_move/2}) and play the move (\textit{echanger/4}).  The resulting state is checked against a list of previously visited states using \textit{member/2} to avoid cycles.
+\item
+\textit{change\_N(STATE, SOLUTION, ACCUMULATOR, \_)}:
+This predicate is true when STATE is goal. It reverses the ACCUMULATOR which contains the played moves to properly return the solution.
+\item 
+\textit{change\_N(STATE, SOLUTION)}:
+Interface predicate.
+\end{enumerate}
+
+\subsection{Best-first Search}
+Our best-first implementation makes use of source code provided on the website of the class (fig12\_3.pl).  In this implementation of best-first search, the majority of the work is done by the \textit{expand} predicate in which all possible moves from a current state will be played and evaluated.  In a recursive manner, the most promising resulting states, in respect to the \textit{f} evaluating function, is played first.  Moves are sorted using the basic \textit{insert} predicates.  The \textit{f} predicate makes uses of the \textit{h} predicates which represent the heuristics used to evaluate the distance between a state and a goal.  Two heuristics are here presented and will be discribed further.
+\begin{enumerate}[-]
+\item
+\textit{s(STATE, OPEN, 1)}:
+Much like the main predicate of the uninformed search, this predicate is in charge of playing a move and returning its resulting state.
+\item
+\textit{get\_changes([HEAD\|STATES], ACC, CHANGES)}:
+This predicated was implemented in order to correctly represent the solution format requested by the assignment.  From a list of states it will return a list of moves representing the transitions from state to state.
+\item
+\textit{get\_changes([HEAD], CHANGES, CHANGES)}:
+Base case of previous predicate.
+\end{enumerate}
+\section{Heuristics}
+\begin{enumerate}[(1)]
+\item
+The first heuristic implemented, as requested by the assignment is the raw number of differences in a state.  This number represents the number of columns for which the elements in the first and last row differ.
+\item
+The second heuristic considers two distances as putative estimators of the distance to goal.  First, it makes uses of the first heuristic, counting the raw number of differences.  Second, it considers the distance (in x) from the position of the 0 and the furthest non-symmetric column as an estimator of the number of moves required to attain the goal.  By the definition of the game, this distance is maximal at 3.  This distance is incremented by 1 if the 0 is placed on the second row as this means that it will require at least one additional move to attain goal.  The maximum between the distance mentionned and the raw number of differences is the value of the distance estimation.  This ensures that even if there is only 1 difference, the heuristic will return the minimal number of moves it would take to fix this difference.  In this way, this implementation dominates the first heuristic as shown in Table 1.  Also, by construction, the heuristic is consistent and therefore admissible.\\
+ 
+\begin{table}[h!]
+\begin{center}
+\begin{tabular} {| l || c | c |}
+\hline
+Example & Calls to h1 & Calls to h2 \\
+\hline
+example1 & 974 & 617 \\
+example2 & 3305 & 2922 \\
+example3 & OVERFLOW & 13696 \\
+example4 & 4039 & 3704\\
+example5 & 2165 & 1849 \\
+example6 & 3402 & 2983\\
+example7 & 219 & 167\\
+\hline
+\end{tabular}
+\caption{Number of calls to \textit{h} in the implementations of two heuristics.}
+\end{center}
+\end{table}
+\end{enumerate}
+
+\section{Discussion}
+By running the different algorithms presented in this document one can see the significative difference between the uninformed search and the A* search.  The algorithms differ mainly by what they return, namely a valid path to attain goal and the shortest path to goal, respectively.  However, it is to be noted that both method differ greatly in the difficulty of their implementation.  Indeed, the uninformed search is trivial to implement as opposed to A* which requires more sophisticated methods.
+
+Also, we have shown the implication of dominating heuristics in the A* pathfinding algorithm.  It was shown that a dominant heuristic can have a very positive impact on the algorithm.  With a better heuristic, the algorithm is able to reduce its search space and therefor proceed faster and with a smaller memory footprint.  This can in turn result, given limited memory ressource, in turning a nonfeasible problem into a feasible one, as seen in example 3.  One could improve our heuristics even further be identifying the position of the number 25 when it participates in a difference.  This would allow for a more precise estimation of the minimal number of moves to fix the difference by enabling to compute the manhattan distance between 0 and 25.  The basic predicates for implementing such a better heuristic have been layed out in \textit{h2.pl} and could be incorporated in the heuristic in future works.
+
+\section{Files}
+\subsection{change.pl}
+The different interfaces and bridges between \textit{h1.pl}, \textit{h2.pl}, \textit{best\_first.pl} and \textit{affichage.pl} are found in this file. Moreover, \textit{change.pl} contains the move validation and goal validation predicates.  Finally, the full implementation of the uninformed search (\textit{change\_N}) and both interface predicate (\textit{change\_M} and (\textit{change\_H})) are located in this file. 
+\subsection{h1.pl}
+The first heuristic described, using the raw number of differences in symmetric rows as the distance from goal is implemented here.
+\subsection{h2.pl}
+The second heuristic, using a more sophisticated distance estimation method is located in this file.
+\subsection{best\_first.pl}
+This file contains the main mechanism of the best-first search.  The \textit{expand} and \textit{f} predicates, which function as crucial parts of the algorithm are located in this file.
+\subsection{affichage.pl}
+This file was provided as a part of the assignment.
+\end{document}
+
