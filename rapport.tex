@@ -51,12 +51,22 @@ Our best-first implementation makes use of source code provided on the website o
 \textit{s(STATE, OPEN, 1)}:
 Much like the main predicate of the uninformed search, this predicate is in charge of playing a move and returning its resulting state.
 \item
-\textit{get\_changes([HEAD\|STATES], ACC, CHANGES)}:
+\textit{get\_changes([HEAD $\mid$ STATES], ACC, CHANGES)}:
 This predicated was implemented in order to correctly represent the solution format requested by the assignment.  From a list of states it will return a list of moves representing the transitions from state to state.
 \item
 \textit{get\_changes([HEAD], CHANGES, CHANGES)}:
 Base case of previous predicate.
 \end{enumerate}
+\section{Use Case}
+Examples are already defined in \textit{change.pl} and can be used the following way.
+\begin{verbatim}
+[change].
+[affichage].
+[best_first].
+example1(POS), change_N(POS,SOL), afficher(POS, SOL, m).
+example1(POS), change_M(POS,SOL), afficher(POS, SOL, m).
+example1(POS), change_H(POS,SOL), afficher(POS, SOL, m).
+\end{verbatim}
 \section{Heuristics}
 \begin{enumerate}[(1)]
 \item
@@ -91,7 +101,7 @@ Also, we have shown the implication of dominating heuristics in the A* pathfindi
 
 \section{Files}
 \subsection{change.pl}
-The different interfaces and bridges between \textit{h1.pl}, \textit{h2.pl}, \textit{best\_first.pl} and \textit{affichage.pl} are found in this file. Moreover, \textit{change.pl} contains the move validation and goal validation predicates.  Finally, the full implementation of the uninformed search (\textit{change\_N}) and both interface predicate (\textit{change\_M} and (\textit{change\_H})) are located in this file. 
+The different interfaces and bridges between \textit{h1.pl}, \textit{h2.pl}, \textit{best\_first.pl} and \textit{affichage.pl} are found in this file. Moreover, \textit{change.pl} contains the move validation and goal validation predicates.  Finally, the full implementation of the uninformed search (\textit{change\_N}) and both interface predicate (\textit{change\_M} and \textit{change\_H}) are located in this file. 
 \subsection{h1.pl}
 The first heuristic described, using the raw number of differences in symmetric rows as the distance from goal is implemented here.
 \subsection{h2.pl}
